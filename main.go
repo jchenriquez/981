@@ -10,7 +10,12 @@ type TimeValue struct {
 	Timestamp int
 }
 
-type TimeMap map[string] []TimeValue
+type ValuedArr struct {
+  TimeValues []TimeValue
+  LastInserted bool
+}
+
+type TimeMap map[string] ValuedArr
 
 
 /** Initialize your data structure here. */
@@ -20,30 +25,39 @@ func Constructor() TimeMap {
 
 
 func (tm *TimeMap) Set(key string, value string, timestamp int)  {
-	arr, seen := (*tm)[key]
+	valueArr, seen := (*tm)[key]
 
 	if !seen {
-		arr = make([]TimeValue, 0)
+		arr := make([]TimeValue, 0)
+    valueArr = ValuedArr{arr, true}
 	}
 
-	arr = append(arr, TimeValue{value, timestamp})
-	sort.Slice(arr, func(i, j int) bool {
-		return arr[i].Timestamp < arr[j].Timestamp
-	})
-	(*tm)[key] = arr
+	valueArr.TimeValues = append(valueArr.TimeValues, TimeValue{value, timestamp})
+	
+	(*tm)[key] = valueArr
 }
 
 
 func (tm *TimeMap) Get(key string, timestamp int) string {
-	tL, in := (*tm)[key]
+	vA, in := (*tm)[key]
+
 
 	if in {
-		i := sort.Search(len(tL), func(i int) bool {
-			return tL[i].Timestamp >= timestamp
+    if vA.LastInserted {
+      sort.Slice(vA.TimeValues, func(i, j int) bool {
+        return vA.TimeValues[i].Timestamp < vA.TimeValues[j].Timestamp
+      })
+    }
+
+    vA.LastInserted = false
+    (*tm)[key] = vA
+
+		i := sort.Search(len(vA.TimeValues), func(i int) bool {
+			return vA.TimeValues[i].Timestamp >= timestamp
 		})
 
-		if i < len(tL) && tL[i].Timestamp == timestamp {
-			return tL[i].Value
+		if i < len(vA.TimeValues) && vA.TimeValues[i].Timestamp == timestamp {
+			return vA.TimeValues[i].Value
 		} else {
 			i--
 
@@ -51,8 +65,9 @@ func (tm *TimeMap) Get(key string, timestamp int) string {
 				return ""
 			}
 
-			return tL[i].Value
+			return vA.TimeValues[i].Value
 		}
+    
 	} else {
 		return ""
 	}
