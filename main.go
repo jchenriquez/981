@@ -46,6 +46,11 @@ func (tm *TimeMap) Get(key string, timestamp int) string {
 			return tL[i].Value
 		} else {
 			i--
+
+			if i < 0 {
+				return ""
+			}
+
 			return tL[i].Value
 		}
 	} else {
@@ -63,7 +68,13 @@ func (tm *TimeMap) Get(key string, timestamp int) string {
 
 func main() {
 	obj := Constructor()
-	obj.Set("foo", "bar", 1)
-	obj.Set("foo", "bar2", 4)
-	fmt.Printf("%s\n", obj.Get("foo", 5))
+	obj.Set("love", "high", 10)
+	obj.Set("love", "low", 20)
+	fmt.Printf("%s\n", obj.Get("love", 5))
+	fmt.Printf("%s\n", obj.Get("love", 10))
+	fmt.Printf("%s\n", obj.Get("love", 15))
+	fmt.Printf("%s\n", obj.Get("love", 20))
+	fmt.Printf("%s\n", obj.Get("love", 25))
+	//obj.Set("foo", "bar2", 4)
+	//fmt.Printf("%s\n", obj.Get("foo", 5))
 }
